@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'ansible/**'
+      - '.github/workflows/ansible-ci.yml'
   push:
     branches: 
       - main
@@ -26,13 +27,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ansible ansible-lint yamllint
+          pip install ansible ansible-lint yamllint checkov
 
       - name: Run yamllint
         run: yamllint -s ansible/
 
       - name: Run ansible-lint
         run: ansible-lint ansible/
+
+      - name: Run Checkov Scan
+        run: checkov -d ansible/ --framework ansible --verbose
 
       - name: Ansible Syntax Check
         run: |
