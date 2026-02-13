@@ -36,7 +36,9 @@ jobs:
 
       - name: Ansible Syntax Check
         run: |
-          ansible-playbook ansible/validate-system.yaml --syntax-check
+          ansible-playbook ansible/validate-system.yaml \
+            -i ansible/inventory/staging \
+            --syntax-check
 
   ansible-deploy:
     name: Run Playbook (Staging)
@@ -66,7 +68,7 @@ jobs:
       - name: Run Playbook
         run: |
           ansible-playbook ansible/validate-system.yaml \
-            -i inventory/staging \
+            -i ansible/inventory/staging \
             --extra-vars "env=staging"
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'false'
