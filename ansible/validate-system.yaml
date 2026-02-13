@@ -1,13 +1,13 @@
 ---
 - name: Display OS Information
   hosts: all
-  gather_facts: no
-  
+  gather_facts: false
+
   tasks:
     - name: Print /etc/os-release
       command: cat /etc/os-release
       register: os_info
-    
+
     - name: Display OS Release
       debug:
         msg: "{{ os_info.stdout_lines }}"
