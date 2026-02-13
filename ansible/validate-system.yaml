@@ -5,9 +5,10 @@
 
   tasks:
     - name: Print /etc/os-release
-      command: cat /etc/os-release
+      ansible.builtin.command: cat /etc/os-release
       register: os_info
+      changed_when: false
 
     - name: Display OS Release
-      debug:
+      ansible.builtin.debug:
         msg: "{{ os_info.stdout_lines }}"
