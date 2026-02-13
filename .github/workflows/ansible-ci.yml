@@ -1,0 +1,72 @@
+name: Ansible CI
+
+on:
+  pull_request:
+    paths:
+      - 'ansible/**'
+  # push:
+  #   branches: 
+  #     - main
+  #   paths:
+  #     - 'ansible/**'
+
+jobs:
+  ansible-lint:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install ansible ansible-lint yamllint
+
+      - name: Run yamllint
+        run: yamllint -s ansible/
+
+      - name: Run ansible-lint
+        run: ansible-lint ansible/
+
+      - name: Ansible Syntax Check
+        run: |
+          ansible-playbook ansible/validate-system.yaml --syntax-check
+
+  ansible-deploy:
+    name: Run Playbook (Staging)
+    needs: ansible-lint
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Configure SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Run Playbook
+        run: |
+          ansible-playbook ansible/validate-system.yaml \
+            -i inventory/staging \
+            --extra-vars "env=staging"
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: 'false'
