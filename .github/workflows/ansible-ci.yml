@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'ansible/**'
+      - '.github/workflows/ansible-ci.yml'
   push:
     branches: 
       - main
